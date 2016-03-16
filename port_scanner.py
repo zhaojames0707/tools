@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # coding=utf-8
+from gevent import monkey
+monkey.patch_all()
+
 import argparse
 from socket import socket
 
 from gevent.pool import Pool
 import gevent
-from gevent import monkey
-monkey.patch_all()
 
 
 open_ports = []
 
 
 def scan_a_host(host, ports):
-    pool = Pool(15)
+    pool = Pool(1024)
     for port in ports:
         pool.spawn(scan_a_port, host, port)
     gevent.wait()
@@ -22,7 +23,7 @@ def scan_a_host(host, ports):
 
 def scan_a_port(host, port):
     _socket = socket()
-    _socket.settimeout(5)
+    _socket.settimeout(4)
     result = _socket.connect_ex((host, port))
     if result == 0:
         open_ports.append(port)
